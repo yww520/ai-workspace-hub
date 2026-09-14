@@ -2,76 +2,177 @@ filters:
   and:
     - file.ext == "md"
     - or:
-        - file.inFolder("inbox")
-        - file.inFolder("output/research")
-        - file.inFolder("output/screen")
-        - file.inFolder("output/pod2wiki")
-        - file.inFolder("output/daily-watch")
-        - file.inFolder("workspace/monitoring")
-        - file.inFolder("wiki/sources")
+        - file.inFolder("ai-workspace-hub/inbox")
+        - file.inFolder("ai-workspace-hub/output/research")
+        - file.inFolder("ai-workspace-hub/output/screen")
+        - file.inFolder("ai-workspace-hub/output/pod2wiki")
+        - file.inFolder("ai-workspace-hub/output/daily-watch")
+        - file.inFolder("ai-workspace-hub/output/ai-signal")
+        - file.inFolder("ai-workspace-hub/output/podcast-picks")
+        - file.inFolder("ai-workspace-hub/output/hypothesis-review")
+        - file.inFolder("ai-workspace-hub/workspace/monitoring")
+        - file.inFolder("ai-workspace-hub/wiki/sources")
 formulas:
-  status: if(read_status == "已读" || read_status == "精读" || read_status == "跳过", read_status, "未读")
+  status: if(read_status, read_status, "未读")
   status_icon: if(read_status == "已读", "✅", if(read_status == "精读", "⭐", if(read_status == "跳过", "⏭️", "📄")))
-  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "🎙️ Podcast", if(/(output\/daily-watch|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), "📚 Sources", "🗂️ 其他"))))))
-  content_date: if(source_published_at, date(source_published_at), if(published_at, date(published_at), if(publish_time, date(publish_time), if(date, date(date), if(/^\d{4}-\d{2}-\d{2}/.matches(file.basename), date(file.basename.slice(0, 10)), if(created_at, date(created_at), if(created, date(created), file.ctime)))))))
-  days_old: (now() - formula.content_date).days.floor()
+  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "📚 Wiki", if(/output\/podcast-picks/.matches(file.path), "🎯 播客选品", if(/(output\/daily-watch|output\/ai-signal|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), "📚 Sources", if(/output\/hypothesis-review/.matches(file.path), "📈 假设复盘", "🗂️ 其他"))))))))
+  days_old: (now() - file.ctime).days.round(0)
 properties:
   read_status:
-    displayName: 阅读标记（点击填写）
+    displayName: 阅读状态
+  pick_status:
+    displayName: 选品状态
+  title_zh:
+    displayName: 标题
+  tldr_zh:
+    displayName: 摘要
+  channel:
+    displayName: 节目
+  guest:
+    displayName: 嘉宾
+  priority:
+    displayName: 优先级
+  duration_min:
+    displayName: 时长(分)
+  date:
+    displayName: 播出日期
   formula.status:
     displayName: 状态
   formula.category:
     displayName: 类别
-  formula.content_date:
-    displayName: 资料日期
   formula.days_old:
-    displayName: 距今天数
+    displayName: 入库天数
+  report_id:
+    displayName: 报告ID
+  iso_week:
+    displayName: 周次
+  period:
+    displayName: 复盘区间
+  certainty_changes:
+    displayName: 确定性变动
 views:
   - type: table
     name: 🎯 今日看什么
     filters:
       and:
-        - formula.days_old >= 0
-        - formula.days_old <= 3
+        - (now() - file.ctime).days <= 3
         - formula.status != "已读"
         - formula.status != "跳过"
     order:
       - formula.status_icon
       - file.name
-      - read_status
       - formula.category
-      - formula.content_date
       - formula.days_old
     sort:
-      - property: formula.content_date
+      - property: file.ctime
         direction: DESC
     limit: 20
+  - type: table
+    name: 📊 日报监控
+    filters:
+      or:
+        - file.inFolder("ai-workspace-hub/output/daily-watch")
+        - file.inFolder("ai-workspace-hub/output/ai-signal")
+        - file.inFolder("ai-workspace-hub/workspace/monitoring")
+    order:
+      - file.name
+      - formula.category
+      - file.ctime
+    sort:
+      - property: file.ctime
+        direction: DESC
+    limit: 14
   - type: table
     name: 📥 Inbox（未读）
     filters:
       and:
-        - file.inFolder("inbox")
+        - file.inFolder("ai-workspace-hub/inbox")
         - formula.status == "未读"
     order:
       - formula.status_icon
       - file.name
-      - read_status
-      - formula.content_date
       - formula.days_old
     sort:
-      - property: formula.content_date
+      - property: file.ctime
+        direction: DESC
+  - type: srh-fold
+    name: 🎯 播客候选
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/podcast-picks")
+        - pick_status == "candidate"
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - title_zh
+      - tldr_zh
+      - channel
+      - guest
+    sort:
+      - property: published_at
+        direction: DESC
+  - type: srh-fold
+    name: ✅ 已选待转录
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/podcast-picks")
+        - pick_status == "selected"
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - title_zh
+      - tldr_zh
+      - channel
+      - guest
+    sort:
+      - property: published_at
+        direction: DESC
+  - type: srh-fold
+    name: 📝 已转录
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/podcast-picks")
+        - pick_status == "transcribed"
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - title_zh
+      - tldr_zh
+      - channel
+      - guest
+    sort:
+      - property: published_at
+        direction: DESC
+  - type: table
+    name: 🚀 已发布
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/podcast-picks")
+        - pick_status == "published"
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - title_zh
+      - guest
+      - channel
+      - duration_min
+      - date
+    sort:
+      - property: published_at
         direction: DESC
   - type: table
     name: 🔬 研究
     filters:
       and:
-        - file.inFolder("output/research")
+        - file.inFolder("ai-workspace-hub/output/research")
         - formula.status != "跳过"
     order:
       - formula.status_icon
       - file.name
-      - read_status
-      - formula.content_date
       - file.mtime
     sort:
       - property: file.mtime
@@ -80,64 +181,47 @@ views:
     name: 🔍 筛选
     filters:
       and:
-        - file.inFolder("output/screen")
+        - file.inFolder("ai-workspace-hub/output/screen")
         - formula.status != "跳过"
     order:
       - formula.status_icon
       - file.name
-      - read_status
-      - formula.content_date
+      - file.ctime
     sort:
-      - property: formula.content_date
+      - property: file.ctime
         direction: DESC
     limit: 30
   - type: table
-    name: 🎙️ Podcast
+    name: 📚 Wiki
     filters:
       and:
-        - file.inFolder("output/pod2wiki")
+        - file.inFolder("ai-workspace-hub/output/pod2wiki")
         - formula.status == "未读"
     order:
       - formula.status_icon
       - file.name
-      - read_status
-      - formula.content_date
       - formula.days_old
     sort:
-      - property: formula.content_date
+      - property: file.ctime
         direction: DESC
-  - type: table
-    name: 📊 日报监控
-    filters:
-      or:
-        - file.inFolder("output/daily-watch")
-        - file.inFolder("workspace/monitoring")
-    order:
-      - file.name
-      - read_status
-      - formula.category
-      - formula.content_date
-    sort:
-      - property: formula.content_date
-        direction: DESC
-    limit: 14
+    columnSize:
+      file.name: 201
   - type: table
     name: 📚 Sources（近30天未读）
     filters:
       and:
-        - file.inFolder("wiki/sources")
+        - file.inFolder("ai-workspace-hub/wiki/sources")
         - formula.status == "未读"
-        - formula.days_old >= 0
-        - formula.days_old <= 30
+        - (now() - file.ctime).days <= 30
     order:
       - formula.status_icon
       - file.name
-      - read_status
-      - formula.content_date
       - formula.days_old
     sort:
-      - property: formula.content_date
+      - property: file.ctime
         direction: DESC
+    columnSize:
+      file.name: 533
   - type: table
     name: ⭐ 精读清单
     filters:
@@ -146,12 +230,10 @@ views:
     order:
       - formula.status_icon
       - file.name
-      - read_status
       - formula.category
-      - formula.content_date
       - formula.days_old
     sort:
-      - property: formula.content_date
+      - property: file.ctime
         direction: DESC
   - type: table
     name: ✅ 最近已读
@@ -161,11 +243,27 @@ views:
     order:
       - formula.status_icon
       - file.name
-      - read_status
       - formula.category
-      - formula.content_date
-      - file.mtime
+      - formula.days_old
     sort:
       - property: file.mtime
         direction: DESC
     limit: 30
+  - type: table
+    name: 📈 假设复盘
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/hypothesis-review")
+    order:
+      - formula.status_icon
+      - file.name
+      - iso_week
+      - period
+      - report_id
+      - certainty_changes
+      - formula.category
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 12
