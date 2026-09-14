@@ -83,6 +83,24 @@ views:
         direction: DESC
     limit: 14
   - type: table
+    name: 📈 假设复盘
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/hypothesis-review")
+    order:
+      - formula.status_icon
+      - file.name
+      - iso_week
+      - period
+      - report_id
+      - certainty_changes
+      - formula.category
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 12
+  - type: table
     name: 📥 Inbox（未读）
     filters:
       and:
@@ -249,21 +267,4 @@ views:
       - property: file.mtime
         direction: DESC
     limit: 30
-  - type: table
-    name: 📈 假设复盘
-    filters:
-      and:
-        - file.inFolder("ai-workspace-hub/output/hypothesis-review")
-    order:
-      - formula.status_icon
-      - file.name
-      - iso_week
-      - period
-      - report_id
-      - certainty_changes
-      - formula.category
-      - file.mtime
-    sort:
-      - property: file.mtime
-        direction: DESC
-    limit: 12
+
