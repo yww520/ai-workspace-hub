@@ -16,6 +16,7 @@
 2. 读完一篇，在文章顶部 Properties 添加 `read_status`，填 `已读` / `精读` / `跳过`。
 3. 已读和跳过会自动从待读视图消失；`精读` 进入收藏清单。
 4. 全部 14 个视图 → 打开 [[reading-hub.base]]。分四组：**入口与监控**（今日看什么 / 日报监控 / 假设复盘 / Inbox）→ **播客流水线**（候选 → 已选 → 已转录 → 已发布）→ **内容库**（研究 / 筛选 / Wiki / Sources）→ **复盘**（精读 / 最近已读）。
+5. 视频切片制作 → 在下方「🎬 杂志短视频切片工坊」展开可视化操作，或打开 [[magazine-studio|🎬 独立全屏工作台]]。
 
 > [!note] 两个「入口」的区别
 > - **🎯 今日看什么** = **全库**近 3 天新入库 + 未读/未跳过的汇总（跨目录收件箱），回答「今天有什么新东西」。
@@ -49,6 +50,15 @@
 > 完整四阶段视图 → 打开 [[reading-hub.base]] 看「🎯 播客候选 / ✅ 已选待转录 / 📝 已转录 / 🚀 已发布」。
 >
 > ⚠️ 状态**只是标记**，不会自动触发转录或发布——真正的活儿由 `podcast-to-wechat-workflow` 跑。
+
+## 🎬 杂志短视频切片工坊（Magazine Studio）
+
+> [!tip]- 💡 杂志短视频可视化工作台（点击展开 / 折叠）
+> 选好播客后，可在此直接粘贴 YouTube 链接，提取高光段落并一键渲染 3:4 杂志短视频（暖奶油/墨绿刊印风）。成片自动沉淀至 `output/videos/`。
+> 
+> <iframe src="http://127.0.0.1:8787" width="100%" height="820px" style="border-radius: 8px; border: 1px solid var(--background-modifier-border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); background: var(--background-primary);"></iframe>
+> 
+> _若服务未启动，可由 Agent 或在终端唤起：`npm --prefix /Users/clawbot/AI/MagazineVideo run dev`（服务端口 8787 / 5173）。也可直接打开：[[magazine-studio|🎬 独立全屏工作台]]。_
 
 ## 📊 日报监控
 
