@@ -103,6 +103,8 @@ CONFIG_MAPPINGS = (
 OBSIDIAN_READING_HUB_MAPPINGS = (
     ("system/templates/reading-hub.base", "reading-hub.base"),
     ("system/templates/reading-hub.md", "reading-hub.md"),
+    ("system/templates/magazine-studio.md", "magazine-studio.md"),
+    ("system/templates/podcast-pick.md", "templates/podcast-pick.md"),
 )
 
 
@@ -297,7 +299,8 @@ def main() -> int:
     print(f'Next: python3 "{target / "system/scripts/check_workspace.py"}" --root "{target}" (verifies Core Mode)')
     print("Enhanced Mode (optional): run tools/daily-watch/scripts/check_setup.py later.")
     if args.obsidian_reading_hub or detect_obsidian_vault(target):
-        print("Obsidian Reading Hub: installed reading-hub.base + reading-hub.md "
+        print("Obsidian Reading Hub: installed reading-hub.base, reading-hub.md, "
+              "magazine-studio.md, and templates/podcast-pick.md "
               "(open reading-hub.md in Obsidian 1.9+).")
     return 0
 

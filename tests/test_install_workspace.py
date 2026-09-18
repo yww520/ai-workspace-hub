@@ -210,6 +210,8 @@ class ObsidianReadingHubTests(unittest.TestCase):
             )
             self.assertTrue((target / "reading-hub.base").is_file())
             self.assertTrue((target / "reading-hub.md").is_file())
+            self.assertTrue((target / "magazine-studio.md").is_file())
+            self.assertTrue((target / "templates/podcast-pick.md").is_file())
 
     def test_dashboard_files_off_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -224,6 +226,8 @@ class ObsidianReadingHubTests(unittest.TestCase):
             )
             self.assertFalse((target / "reading-hub.base").exists())
             self.assertFalse((target / "reading-hub.md").exists())
+            self.assertFalse((target / "magazine-studio.md").exists())
+            self.assertFalse((target / "templates/podcast-pick.md").exists())
 
     def test_existing_obsidian_vault_auto_enables(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -239,6 +243,8 @@ class ObsidianReadingHubTests(unittest.TestCase):
             )
             self.assertTrue((target / "reading-hub.base").is_file())
             self.assertTrue((target / "reading-hub.md").is_file())
+            self.assertTrue((target / "magazine-studio.md").is_file())
+            self.assertTrue((target / "templates/podcast-pick.md").is_file())
 
 
 if __name__ == "__main__":

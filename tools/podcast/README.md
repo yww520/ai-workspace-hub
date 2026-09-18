@@ -42,3 +42,20 @@ python3 -m pip install -r tools/podcast/requirements.txt
 `PODCAST_PROXY` 取值语义：不设置 / 空 / `none` = 不走代理（默认）；`auto` = 自动扫描本机 12345-12350 端口寻找 SOCKS5 代理；其他值 = 直接作为代理 URL 使用（如 `socks5://127.0.0.1:1080`）。SOCKS 代理依赖 PySocks，已包含在 `requirements.txt` 的 `requests[socks]` 中。
 
 无 LLM key 时可用 `--no-llm` 模式：不调用 LLM，改用本地抽取式逻辑（首段摘要 + 关键词 + 假设关键词匹配）生成低置信度（`confidence: low`）的 source page，并可输出 fallback 版 insight log。
+
+## 播客选品同步与切片工坊（Reading Hub 联动）
+
+Reading Hub 提供了专用的播客选品看板（`output/podcast-picks/`），并原生集成了 Magazine Studio 3:4 短视频切片工坊。
+
+可用脚本同步最新播客候选卡片：
+
+```bash
+# 同步 BidClub 优质播客单集（含中文 dek_alt 与关键论点）
+python3 tools/podcast/scripts/sync_bidclub_picks.py --days 3 --limit 40
+
+# 同步 ai-signal 主源播客并自动去重与翻译
+python3 tools/podcast/scripts/sync_aisignal_picks.py --days 14
+```
+
+每张落盘卡片均内嵌原生折叠的「🎬 杂志短视频切片工坊」，支持点击按需展开并一键调用本地切片服务（Remotion 内核）完成 3:4 杂志短视频制作。
+
