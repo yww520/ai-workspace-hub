@@ -50,6 +50,12 @@
 > 完整四阶段视图 → 打开 [[reading-hub.base]] 看「🎯 播客候选 / ✅ 已选待转录 / 📝 已转录 / 🚀 已发布」。
 >
 > ⚠️ 状态**只是标记**，不会自动触发转录或发布——真正的活儿由 `podcast-to-wechat-workflow` 跑。
+>
+> > [!tip] 🎙️ 决定制作某期播客？一键跳转 WorkBuddy 发起转录（po d 空间）
+> > 选好播客后，无需手动复制粘贴信息：
+> > 1. **单集笔记内直接发起**：打开任意播客笔记，点击顶部状态栏右侧新增的 **「🎙️ WorkBuddy 转录」** 按钮，或点击正文内的转录链接卡片；
+> > 2. **自动联动**：选品状态自动切为 `📌 已选`，并自动唤出 WorkBuddy（切换至 `po d` 空间），将该集标题、频道、原链接与全套转录改写规范自动预填至输入框，回车即可启动流水线；
+> > 3. **快捷直达**：[🚀 打开 WorkBuddy（po d 空间）](workbuddy-ai://task?action=start&cwd=%2FUsers%2Fclawbot%2Fworkbuddy-ai%2Fpo+d&prompt=%E8%AF%B7%E5%9C%A8+po+d+%E7%A9%BA%E9%97%B4%E4%BD%BF%E7%94%A8+podcast-to-wechat-workflow+%E5%AF%B9%E6%8C%87%E5%AE%9A%E6%92%AD%E5%AE%A2%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%BD%95%E4%B8%8E%E6%94%B9%E5%86%99%E6%8E%92%E7%89%88)
 
 ## 🎬 杂志短视频切片工坊（Magazine Studio）
 

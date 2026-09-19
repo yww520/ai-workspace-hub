@@ -34,7 +34,7 @@ class RepositoryContractTests(unittest.TestCase):
                 continue
             for target in pattern.findall(markdown.read_text(encoding="utf-8")):
                 target = target.split("#", 1)[0].strip()
-                if not target or target.startswith(("http://", "https://", "mailto:")):
+                if not target or "://" in target or target.startswith("mailto:") or "{{" in target:
                     continue
                 path = (markdown.parent / target.replace("%20", " ")).resolve()
                 if not path.exists():

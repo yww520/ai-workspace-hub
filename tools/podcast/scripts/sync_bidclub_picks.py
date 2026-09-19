@@ -69,6 +69,31 @@ def slug_to_filename(date, slug):
     return f"{date}-{slug}.md"
 
 
+def make_workbuddy_transcribe_url(channel, title, guest, url):
+    cwd = "/Users/clawbot/workbuddy-ai/po d"
+    prompt = f"""请在 po d 空间使用 podcast-to-wechat-workflow 对以下播客进行转录与深度改写：
+
+【单集信息】
+- 播客频道：{channel}
+- 播客标题：{title}
+- 嘉宾：{guest}
+- 源链接：{url}
+
+【转录与成稿要求】
+1. 启动 podcast-to-wechat-workflow 播客转录流程（若 BidClub 已收录逐字稿则直接获取，否则下载音频/调用 ASR 进行精准转录）；
+2. 全面提取核心论点、论据与金句，保留全部事实细节与专业术语，严禁缩水删减；
+3. 执行高质量问答式与深度叙事改写，过滤口语废话与口头禅，保持人物真实语感与表达生动性；
+4. 结尾信息规范：附带完整的单集信息（遵守单一「- 翻译自：{channel}《{title}》」与原文链接规范）；
+5. 产出成稿沉淀到知识库，并准备启动排版工作台。"""
+    params = {
+        "action": "start",
+        "cwd": cwd,
+        "prompt": prompt,
+    }
+    encoded = urllib.parse.urlencode(params, quote_via=lambda s, safe="", encoding=None, errors=None: urllib.parse.quote(s, safe=""))
+    return f"workbuddy-ai://task?{encoded}"
+
+
 def build_md(ep, out_dir):
     channel = (ep.get("shows") or {}).get("name", "")
     title = ep.get("title") or ""
@@ -88,6 +113,7 @@ def build_md(ep, out_dir):
     heading = title_zh or title
     # 唯一真源：frontmatter 与正文「当前状态」都读这个变量，避免两处不一致
     pick_status = "candidate"
+    wb_url = make_workbuddy_transcribe_url(channel, heading, guest, url)
 
     body = [
         "---",
@@ -119,6 +145,10 @@ def build_md(ep, out_dir):
         f'> <iframe src="http://127.0.0.1:8787/?auto=1&url={urllib.parse.quote(url, safe="")}" width="100%" height="820px" style="border-radius: 8px; border: 1px solid var(--background-modifier-border); box-shadow: 0 4px 16px rgba(0,0,0,0.06); background: var(--background-primary);"></iframe>',
         "> ",
         "> _也可点击笔记顶部状态栏右侧的「🎬 制作短视频」按钮随时唤出/收起，或打开：[[magazine-studio|🎬 独立全屏工作台]]。_",
+        "",
+        "> [!action] 🎙️ 决定制作本集？一键发起转录",
+        f"> - **一键流转**：[🚀 **跳转 WorkBuddy 发起转录（po d 空间）**]({wb_url})",
+        "> _点击后将自动唤出 WorkBuddy 切换到 `po d` 空间，并将本集标题、原链接与全套专业转录改写规范自动预填至输入框。也可点击笔记顶部状态栏右侧的 **「🎙️ WorkBuddy 转录」** 按钮一键直达。_",
         "",
         "## 一句话摘要",
         "",
