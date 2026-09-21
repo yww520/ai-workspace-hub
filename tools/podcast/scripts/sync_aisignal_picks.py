@@ -26,10 +26,7 @@ import re
 import sys
 import urllib.parse
 
-DEFAULT_OUT = os.environ.get(
-    "PODCAST_PICKS_DIR",
-    os.path.join(os.getcwd(), "output", "podcast-picks"),
-)
+DEFAULT_OUT = "/Users/clawbot/AI/skywork/ai-workspace-hub/output/podcast-picks"
 DEFAULT_PAYLOAD = os.path.expanduser("~/.ai-signal/payload/payload.json")
 
 
@@ -156,26 +153,58 @@ def is_dup(title, link, existing_titles, existing_yt):
     return False
 
 
-# ---------- DeepSeek AI 翻译与提炼 ----------
-DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY", "")
-DEEPSEEK_API_URL = os.environ.get("DEEPSEEK_API_URL", "https://api.deepseek.com/v1/chat/completions")
+# ---------- 环境变量加载 ----------
+def load_env_vars():
+    """从多个潜在配置文件自动加载 API Key 和模型地址。"""
+    paths = [
+        "/Users/clawbot/AI/skywork/ai-workspace-hub/config/pod2wiki.env",
+        os.path.expanduser("~/.openclaw/openclaw.env"),
+        os.path.expanduser("~/.env"),
+    ]
+    for p in paths:
+        if not os.path.isfile(p):
+            continue
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"")
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+        except Exception:
+            pass
+
+    api_key = os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("LLM_API_KEY", "")
+    base_url = os.environ.get("LLM_BASE_URL", "https://api.deepseek.com/v1").rstrip("/")
+    api_url = os.environ.get("DEEPSEEK_API_URL", f"{base_url}/chat/completions")
+    return api_key, api_url
+
+
+DEEPSEEK_API_KEY, DEEPSEEK_API_URL = load_env_vars()
 
 
 def ai_translate(title, desc, channel):
     """用 DeepSeek 把英文播客信息提炼并翻译为中文结构化信息。"""
+    global DEEPSEEK_API_KEY, DEEPSEEK_API_URL
+    if not DEEPSEEK_API_KEY:
+        DEEPSEEK_API_KEY, DEEPSEEK_API_URL = load_env_vars()
     if not DEEPSEEK_API_KEY:
         return None
-    prompt = f"""请将这档英文播客的信息翻译并提炼为中文结构化信息：
+    prompt = f"""请将这档英文播客/对话视频的信息翻译并提炼为中文结构化信息：
 播客频道：{channel}
 播客标题：{title}
-播客简介：{desc[:1500]}
+播客简介：{desc[:2000]}
 
 请仅以标准 JSON 格式输出，不要有任何额外文字、思考过程或 markdown 标记：
 {{
   "title_zh": "精炼且吸引人的中文标题",
-  "guest": "嘉宾姓名（若无法推断则空字符串）",
-  "tldr_zh": "一句话中文摘要（约50-100字，客观精炼）",
-  "points": ["核心观点1", "核心观点2", "核心观点3"]
+  "guest": "准确的嘉宾姓名与身份（若无法推断则空字符串）",
+  "tldr_zh": "一句话中文摘要（约50-100字，客观精炼，概括核心探讨话题）",
+  "points": ["核心观点1", "核心观点2", "核心观点3", "核心观点4"]
 }}
 """
     headers = {
@@ -191,7 +220,7 @@ def ai_translate(title, desc, channel):
     try:
         import urllib.request
         req = urllib.request.Request(DEEPSEEK_API_URL, json.dumps(payload).encode(), headers)
-        with urllib.request.urlopen(req, timeout=20) as res:
+        with urllib.request.urlopen(req, timeout=25) as res:
             data = json.loads(res.read().decode())
             content = data["choices"][0]["message"]["content"]
             return json.loads(content)
@@ -235,7 +264,9 @@ def build_md(e, out_dir, translate=True):
     if " | " in title:
         parts = title.split(" | ")
         if len(parts) >= 2:
-            guest = parts[0].strip()
+            candidate_guest = parts[0].strip()
+            if not any(candidate_guest.lower().startswith(p) for p in ["a conversation", "episode", "interview", "preview", "the state", "special"]):
+                guest = candidate_guest
 
     title_zh = title
     tldr_zh = "（中文摘要待补）"
@@ -245,7 +276,7 @@ def build_md(e, out_dir, translate=True):
         info = ai_translate(title, raw_desc, channel)
         if info and isinstance(info, dict):
             title_zh = info.get("title_zh") or title_zh
-            if info.get("guest") and not guest:
+            if info.get("guest"):
                 guest = info.get("guest")
             tldr_zh = info.get("tldr_zh") or tldr_zh
             points = info.get("points") or []
@@ -331,6 +362,83 @@ def build_md(e, out_dir, translate=True):
     return path
 
 
+def repair_existing_placeholders(out_dir):
+    """扫描目录中存在待补占位符的卡片，自动重新调用 AI 补全并原位修复。"""
+    md_files = glob.glob(os.path.join(out_dir, "*.md"))
+    repaired_count = 0
+    for p in md_files:
+        try:
+            with open(p, "r", encoding="utf-8") as f:
+                content = f.read()
+            if "（中文摘要待补）" not in content and "（核心观点待补）" not in content:
+                continue
+
+            fm_m = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+            if not fm_m:
+                continue
+            fm_raw = fm_m.group(1)
+
+            channel_m = re.search(r'^channel:\s*"(.*?)"', fm_raw, re.M)
+            title_m = re.search(r'^title:\s*"(.*?)"', fm_raw, re.M)
+            guest_m = re.search(r'^guest:\s*"(.*?)"', fm_raw, re.M)
+            url_m = re.search(r'^url:\s*"(.*?)"', fm_raw, re.M)
+
+            channel = channel_m.group(1) if channel_m else ""
+            title = title_m.group(1) if title_m else ""
+            curr_guest = guest_m.group(1) if guest_m else ""
+            url = url_m.group(1) if url_m else ""
+
+            desc_m = re.search(r"## 英文原文\s*\n\s*(.*?)\s*\n\s*## 状态", content, re.DOTALL)
+            desc = desc_m.group(1).strip() if desc_m else ""
+            if desc == "（无英文简介）":
+                desc = ""
+
+            info = ai_translate(title, desc, channel)
+            if not info or not isinstance(info, dict):
+                continue
+
+            title_zh = info.get("title_zh") or title
+            guest = info.get("guest") or curr_guest
+            if any(guest.lower().startswith(prefix) for prefix in ["a conversation", "episode", "interview", "preview", "the state", "special"]):
+                guest = info.get("guest") or ""
+            tldr_zh = info.get("tldr_zh") or "（中文摘要待补）"
+            points = info.get("points") or []
+
+            new_fm = fm_raw
+            new_fm = re.sub(r'^title_zh:\s*".*?"', f'title_zh: {yaml_str(title_zh)}', new_fm, flags=re.M)
+            new_fm = re.sub(r'^tldr_zh:\s*".*?"', f'tldr_zh: {yaml_str(tldr_zh)}', new_fm, flags=re.M)
+            if guest:
+                new_fm = re.sub(r'^guest:\s*".*?"', f'guest: {yaml_str(guest)}', new_fm, flags=re.M)
+
+            new_heading = title_zh if title_zh != title else title
+            wb_url = make_workbuddy_transcribe_url(channel, new_heading, guest, url)
+
+            body_rest = content[fm_m.end():]
+            # 更新顶部一级标题
+            body_rest = re.sub(r'\n# .*?\n', f'\n# {new_heading}\n', body_rest, count=1)
+            # 更新嘉宾行
+            body_rest = re.sub(r'(>\s*\*\*.*?\*\*\s*｜\s*嘉宾：).*?(｜)', lambda m: f"{m.group(1)}{guest or '—'} {m.group(2)}", body_rest, count=1)
+            # 更新 WorkBuddy 链接
+            body_rest = re.sub(r'(\[🚀\s*\*\*跳转 WorkBuddy 发起转录.*?\]\()(.*?)(\))', lambda m: f"{m.group(1)}{wb_url}{m.group(3)}", body_rest, count=1)
+
+            # 更新一句话摘要
+            body_rest = re.sub(r'(## 一句话摘要\s*\n\s*)（中文摘要待补）', lambda m: f"{m.group(1)}{tldr_zh}", body_rest)
+
+            # 更新核心观点
+            if points:
+                pts_md = "\n".join([f"- **{pt}**" if not pt.startswith("-") else pt for pt in points])
+                body_rest = re.sub(r'(## 核心观点\s*\n\s*)（核心观点待补）', lambda m: f"{m.group(1)}{pts_md}", body_rest)
+
+            new_content = f"---\n{new_fm}\n---{body_rest}"
+            with open(p, "w", encoding="utf-8") as f:
+                f.write(new_content)
+            repaired_count += 1
+            print(f"  [修复待补] {os.path.basename(p)} -> {title_zh[:30]}")
+        except Exception as e:
+            print(f"[sync_aisignal_picks] 修复失败 {os.path.basename(p)}: {e}", file=sys.stderr)
+    return repaired_count
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=14, help="只落 pub_date 在最近 N 天内的单集")
@@ -338,6 +446,7 @@ def main():
     ap.add_argument("--payload", default=DEFAULT_PAYLOAD)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--no-translate", action="store_true", help="跳过 AI 中文翻译")
+    ap.add_argument("--no-repair", action="store_true", help="跳过自动修复待补卡片")
     args = ap.parse_args()
 
     if not os.path.exists(args.payload):
@@ -403,7 +512,11 @@ def main():
             print(f"[sync_aisignal_picks] 落盘失败 {slug}: {ex}", file=sys.stderr)
             failed += 1
 
-    print(f"[sync_aisignal_picks] 完成：新增 {created} / 跳过(重复){skipped_dup} / 过期{skipped_old} / 无日期{skipped_nodate} / 失败{failed}")
+    repaired = 0
+    if not args.no_translate and not args.no_repair:
+        repaired = repair_existing_placeholders(args.out)
+
+    print(f"[sync_aisignal_picks] 完成：新增 {created} / 修复补全 {repaired} / 跳过(重复){skipped_dup} / 过期{skipped_old} / 无日期{skipped_nodate} / 失败{failed}")
     return 0 if failed == 0 else 3
 
 
