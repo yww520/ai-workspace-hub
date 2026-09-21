@@ -141,8 +141,11 @@ def find_matching_pick(mf, d_name, picks_data):
 
 
 def sync_workflows(wf_dir, vault_root, apply=False):
+    import shutil
     wiki_sources_dir = os.path.join(vault_root, "wiki", "sources")
     picks_dir = os.path.join(vault_root, "output", "podcast-picks")
+    vault_covers_dir = os.path.abspath(os.path.join(vault_root, "..", "covers"))
+    os.makedirs(vault_covers_dir, exist_ok=True)
 
     os.makedirs(wiki_sources_dir, exist_ok=True)
     os.makedirs(picks_dir, exist_ok=True)
@@ -183,13 +186,23 @@ def sync_workflows(wf_dir, vault_root, apply=False):
         channel = mf.get("source_channel") or ""
         source_url = mf.get("source_url") or ""
 
-        # Match podcast pick
-        matched_pick = find_matching_pick(mf, d, picks_data)
-
         # Clean slug for filename
         clean_slug = re.sub(r"[^\w\u4e00-\u9fa5-]+", "-", d).strip("-")
         dest_filename = f"{date_str}-wechat-{clean_slug}.md"
         dest_path = os.path.join(wiki_sources_dir, dest_filename)
+
+        # Match podcast pick
+        matched_pick = find_matching_pick(mf, d, picks_data)
+
+        # Check and copy cover
+        wf_cover = os.path.join(full_d, "cover.png")
+        cover_rel = ""
+        if os.path.isfile(wf_cover) and os.path.getsize(wf_cover) > 1000:
+            cov_name = f"{clean_slug}.png"
+            dest_cov_path = os.path.join(vault_covers_dir, cov_name)
+            if apply and (not os.path.isfile(dest_cov_path) or os.path.getsize(dest_cov_path) != os.path.getsize(wf_cover)):
+                shutil.copy2(wf_cover, dest_cov_path)
+            cover_rel = f"covers/{cov_name}"
 
         # Read article content
         with open(art_path, encoding="utf-8") as f:
@@ -216,6 +229,9 @@ def sync_workflows(wf_dir, vault_root, apply=False):
             f"pick_status: {status_label}",
             f'article: "[[{dest_filename}|{title}]]"',
         ]
+        if cover_rel:
+            frontmatter.append(f'cover: "{cover_rel}"')
+            frontmatter.append(f'thumbnail_url: "{cover_rel}"')
         if pick_ref:
             frontmatter.append(f"podcast_pick: {clean_yaml_scalar(pick_ref)}")
         if matched_pick:

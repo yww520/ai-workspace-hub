@@ -174,7 +174,7 @@ views:
     sort:
       - property: date
         direction: DESC
-  - type: table
+  - type: srh-fold
     name: 🚀 已发布
     filters:
       or:
@@ -189,11 +189,9 @@ views:
       direction: DESC
     order:
       - title_zh
+      - tldr_zh
       - channel
       - guest
-      - article
-      - wechat_draft_id
-      - date
     sort:
       - property: date
         direction: DESC
