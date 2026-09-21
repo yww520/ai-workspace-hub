@@ -15,7 +15,7 @@ filters:
 formulas:
   status: if(read_status, read_status, "未读")
   status_icon: if(read_status == "已读", "✅", if(read_status == "精读", "⭐", if(read_status == "跳过", "⏭️", "📄")))
-  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "📚 Wiki", if(/output\/podcast-picks/.matches(file.path), "🎯 播客选品", if(/(output\/daily-watch|output\/ai-signal|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), "📚 Sources", if(/output\/hypothesis-review/.matches(file.path), "📈 假设复盘", "🗂️ 其他"))))))))
+  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "📚 Wiki", if(/output\/podcast-picks/.matches(file.path), "🎯 播客选品", if(/(output\/daily-watch|output\/ai-signal|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), if(pick_status == "published", "🚀 已发布", if(pick_status == "transcribed", "📝 已转录", "📚 Sources")), if(/output\/hypothesis-review/.matches(file.path), "📈 假设复盘", "🗂️ 其他"))))))))
   days_old: (now() - file.ctime).days.round(0)
 properties:
   read_status:
@@ -35,7 +35,7 @@ properties:
   duration_min:
     displayName: 时长(分)
   date:
-    displayName: 播出日期
+    displayName: 播出/发布日期
   formula.status:
     displayName: 状态
   formula.category:
@@ -50,6 +50,12 @@ properties:
     displayName: 复盘区间
   certainty_changes:
     displayName: 确定性变动
+  article:
+    displayName: 公众号文稿
+  wechat_draft_id:
+    displayName: 微信草稿ID
+  podcast_pick:
+    displayName: 关联播客
 views:
   - type: table
     name: 🎯 今日看什么
@@ -150,9 +156,13 @@ views:
   - type: srh-fold
     name: 📝 已转录
     filters:
-      and:
-        - file.inFolder("ai-workspace-hub/output/podcast-picks")
-        - pick_status == "transcribed"
+      or:
+        - and:
+            - file.inFolder("ai-workspace-hub/output/podcast-picks")
+            - pick_status == "transcribed"
+        - and:
+            - file.inFolder("ai-workspace-hub/wiki/sources")
+            - pick_status == "transcribed"
     groupBy:
       property: date
       direction: DESC
@@ -162,25 +172,30 @@ views:
       - channel
       - guest
     sort:
-      - property: published_at
+      - property: date
         direction: DESC
   - type: table
     name: 🚀 已发布
     filters:
-      and:
-        - file.inFolder("ai-workspace-hub/output/podcast-picks")
-        - pick_status == "published"
+      or:
+        - and:
+            - file.inFolder("ai-workspace-hub/output/podcast-picks")
+            - pick_status == "published"
+        - and:
+            - file.inFolder("ai-workspace-hub/wiki/sources")
+            - pick_status == "published"
     groupBy:
       property: date
       direction: DESC
     order:
       - title_zh
-      - guest
       - channel
-      - duration_min
+      - guest
+      - article
+      - wechat_draft_id
       - date
     sort:
-      - property: published_at
+      - property: date
         direction: DESC
   - type: table
     name: 🔬 研究
