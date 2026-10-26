@@ -12,10 +12,11 @@ filters:
         - file.inFolder("ai-workspace-hub/output/hypothesis-review")
         - file.inFolder("ai-workspace-hub/workspace/monitoring")
         - file.inFolder("ai-workspace-hub/wiki/sources")
+        - file.inFolder("ai-workspace-hub/output/xiaoyuzhou")
 formulas:
   status: if(read_status, read_status, "未读")
   status_icon: if(read_status == "已读", "✅", if(read_status == "精读", "⭐", if(read_status == "跳过", "⏭️", "📄")))
-  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "📚 Wiki", if(/output\/podcast-picks/.matches(file.path), "🎯 播客选品", if(/(output\/daily-watch|output\/ai-signal|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), if(pick_status == "published", "🚀 已发布", if(pick_status == "transcribed", "📝 已转录", "📚 Sources")), if(/output\/hypothesis-review/.matches(file.path), "📈 假设复盘", "🗂️ 其他"))))))))
+  category: if(/(^|\/)inbox\//.matches(file.path), "📥 Inbox", if(/output\/xiaoyuzhou/.matches(file.path), "🎙️ 小宇宙", if(/output\/research/.matches(file.path), "🔬 研究", if(/output\/screen/.matches(file.path), "🔍 筛选", if(/output\/pod2wiki/.matches(file.path), "📚 Wiki", if(/output\/podcast-picks/.matches(file.path), "🎯 播客选品", if(/(output\/daily-watch|output\/ai-signal|workspace\/monitoring)/.matches(file.path), "📊 日报监控", if(/wiki\/sources/.matches(file.path), if(pick_status == "published", "🚀 已发布", if(pick_status == "transcribed", "📝 已转录", "📚 Sources")), if(/output\/hypothesis-review/.matches(file.path), "📈 假设复盘", "🗂️ 其他")))))))))
   days_old: (now() - file.ctime).days.round(0)
 properties:
   read_status:
@@ -118,6 +119,23 @@ views:
       - formula.days_old
     sort:
       - property: file.ctime
+        direction: DESC
+  - type: srh-fold
+    name: 🎙️ 小宇宙转录稿
+    filters:
+      and:
+        - file.inFolder("ai-workspace-hub/output/xiaoyuzhou")
+        - formula.status != "跳过"
+    groupBy:
+      property: date
+      direction: DESC
+    order:
+      - title_zh
+      - tldr_zh
+      - channel
+      - guest
+    sort:
+      - property: date
         direction: DESC
   - type: srh-fold
     name: 🎯 播客候选
@@ -280,4 +298,3 @@ views:
       - property: file.mtime
         direction: DESC
     limit: 30
-

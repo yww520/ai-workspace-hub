@@ -229,14 +229,23 @@ def ai_translate(title, desc, channel):
         return None
 
 
-def make_workbuddy_transcribe_url(channel, title, guest, url):
+def make_workbuddy_transcribe_url(channel, title, guest, url, orig_title=""):
     cwd = "/Users/clawbot/workbuddy-ai/po d"
     clean_title = (title or "").strip()
     if clean_title:
         title_str = clean_title if (clean_title.startswith("《") and clean_title.endswith("》")) else f"《{clean_title}》"
     else:
         title_str = "指定播客"
-    prompt = f"请在 po d 空间使用 podcast-to-wechat-workflow 对{title_str}进行转录与深度改写"
+
+    clean_orig = (orig_title or "").strip()
+    clean_url = (url or "").strip()
+    has_orig = bool(clean_orig and clean_orig != clean_title and clean_orig != title_str.strip("《》"))
+    orig_suffix = f"（原标题：{clean_orig}）" if has_orig else ""
+
+    prompt = f"请在 po d 空间使用 podcast-to-wechat-workflow 对{title_str}{orig_suffix}进行转录与深度改写"
+    if clean_url:
+        prompt += f"，源链接为：{clean_url}"
+
     params = {
         "action": "start",
         "cwd": cwd,
@@ -284,7 +293,7 @@ def build_md(e, out_dir, translate=True):
     ta = bool(e.get("transcript_available"))
     pick_status = "candidate"
     heading = title_zh if title_zh != title else title
-    wb_url = make_workbuddy_transcribe_url(channel, heading, guest, url)
+    wb_url = make_workbuddy_transcribe_url(channel, heading, guest, url, orig_title=title)
 
     body = [
         "---",
@@ -411,7 +420,7 @@ def repair_existing_placeholders(out_dir):
                 new_fm = re.sub(r'^guest:\s*".*?"', f'guest: {yaml_str(guest)}', new_fm, flags=re.M)
 
             new_heading = title_zh if title_zh != title else title
-            wb_url = make_workbuddy_transcribe_url(channel, new_heading, guest, url)
+            wb_url = make_workbuddy_transcribe_url(channel, new_heading, guest, url, orig_title=title)
 
             body_rest = content[fm_m.end():]
             # 更新顶部一级标题

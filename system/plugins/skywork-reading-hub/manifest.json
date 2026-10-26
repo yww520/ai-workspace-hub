@@ -1,0 +1,9 @@
+{
+  "id": "skywork-reading-hub",
+  "name": "知识阅读台 (Reading Hub)",
+  "version": "1.3.0",
+  "minAppVersion": "1.5.0",
+  "description": "专为 Skywork 打造的纯粹交互式阅读台：选词划线、多色高亮、想法批注、AI 深度总结、阅读状态流转、读写侧边栏，以及可折叠的 Bases 分组视图。",
+  "author": "Skywork",
+  "isDesktopOnly": false
+}

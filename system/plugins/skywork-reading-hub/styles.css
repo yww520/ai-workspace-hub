@@ -1,0 +1,834 @@
+/* ==========================================================================
+   Skywork Reading Hub - Reading Desk Styles
+   ========================================================================== */
+
+/* --- 1. Highlights & Underlines (Reading View & Live Preview) --- */
+.srh-hl-yellow, mark.hl-yellow, mark.srh-hl-yellow {
+  background-color: rgba(253, 224, 71, 0.4) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.srh-hl-green, mark.hl-green, mark.srh-hl-green {
+  background-color: rgba(134, 239, 172, 0.4) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.srh-hl-blue, mark.hl-blue, mark.srh-hl-blue {
+  background-color: rgba(147, 197, 253, 0.4) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.srh-hl-purple, mark.hl-purple, mark.srh-hl-purple {
+  background-color: rgba(216, 180, 254, 0.4) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.srh-hl-orange, mark.hl-orange, mark.srh-hl-orange {
+  background-color: rgba(253, 186, 116, 0.4) !important;
+  color: inherit !important;
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+.srh-hl-red, u.hl-red, u.srh-hl-red {
+  text-decoration: underline !important;
+  text-decoration-color: #ef4444 !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 3px !important;
+}
+
+/* Dark mode adjustments */
+.theme-dark .srh-hl-yellow, .theme-dark mark.hl-yellow, .theme-dark mark.srh-hl-yellow {
+  background-color: rgba(234, 179, 8, 0.35) !important;
+}
+.theme-dark .srh-hl-green, .theme-dark mark.hl-green, .theme-dark mark.srh-hl-green {
+  background-color: rgba(34, 197, 94, 0.35) !important;
+}
+.theme-dark .srh-hl-blue, .theme-dark mark.hl-blue, .theme-dark mark.srh-hl-blue {
+  background-color: rgba(59, 130, 246, 0.35) !important;
+}
+.theme-dark .srh-hl-purple, .theme-dark mark.hl-purple, .theme-dark mark.srh-hl-purple {
+  background-color: rgba(168, 85, 247, 0.35) !important;
+}
+.theme-dark .srh-hl-orange, .theme-dark mark.hl-orange, .theme-dark mark.srh-hl-orange {
+  background-color: rgba(249, 115, 22, 0.35) !important;
+}
+
+/* --- 2. Floating Selection Bubble Toolbar --- */
+.srh-bubble {
+  position: absolute;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background-color: var(--background-secondary, #202020);
+  border: 1px solid var(--background-modifier-border, #3a3a3a);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  user-select: none;
+  animation: srh-fade-in 0.15s ease-out;
+}
+
+@keyframes srh-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.srh-bubble-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  min-width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: var(--text-muted, #999);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.srh-bubble-btn:hover {
+  background-color: var(--background-modifier-hover, rgba(255, 255, 255, 0.1));
+  color: var(--text-normal, #fff);
+  transform: scale(1.05);
+}
+.srh-bubble-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.srh-color-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.srh-bubble-divider {
+  width: 1px;
+  height: 18px;
+  margin: 0 3px;
+  background-color: var(--background-modifier-border, rgba(255, 255, 255, 0.15));
+}
+
+.srh-btn-text {
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+}
+
+/* --- 3. Marginalia Note Input Card --- */
+.srh-note-card {
+  position: absolute;
+  z-index: 10000;
+  width: 290px;
+  padding: 10px 12px;
+  background-color: var(--background-secondary, #252525);
+  border: 1px solid var(--interactive-accent, #7c3aed);
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  animation: srh-fade-in 0.15s ease-out;
+}
+.srh-note-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.srh-note-quote {
+  font-size: 12px;
+  color: var(--text-muted, #aaa);
+  border-left: 2px solid var(--interactive-accent, #7c3aed);
+  padding-left: 6px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.srh-note-textarea {
+  width: 100%;
+  height: 64px;
+  padding: 6px 8px;
+  font-size: 13px;
+  background-color: var(--background-primary, #1a1a1a);
+  border: 1px solid var(--background-modifier-border, #444);
+  border-radius: 5px;
+  color: var(--text-normal, #fff);
+  resize: vertical;
+  margin-bottom: 8px;
+}
+.srh-note-textarea:focus {
+  outline: none;
+  border-color: var(--interactive-accent, #7c3aed);
+}
+.srh-note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.srh-note-actions button {
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.srh-note-save {
+  background-color: var(--interactive-accent, #7c3aed);
+  color: #fff;
+  border: none;
+}
+.srh-note-cancel {
+  background: transparent;
+  border: 1px solid var(--background-modifier-border, #444);
+  color: var(--text-muted, #999);
+}
+
+/* --- 4. Document Top Reading Banner --- */
+.srh-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 14px;
+  margin: 4px 10px 10px 10px;
+  background-color: var(--background-secondary-alt, rgba(30, 30, 30, 0.7));
+  border: 1px solid var(--background-modifier-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  font-size: 12px;
+  user-select: none;
+}
+.srh-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.srh-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background-color: var(--background-modifier-hover, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  font-weight: 500;
+  color: var(--text-normal, #ddd);
+}
+.srh-status-pills {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.srh-pill {
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted, #888);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.srh-pill:hover {
+  background-color: var(--background-modifier-hover, rgba(255, 255, 255, 0.1));
+  color: var(--text-normal, #fff);
+}
+.srh-pill.active {
+  background-color: var(--interactive-accent, #7c3aed);
+  color: #ffffff;
+  font-weight: 600;
+}
+/* 选品状态药丸：用绿色区分于阅读状态的紫色，避免两组药丸混淆 */
+.srh-pill-pick.active {
+  background-color: #1d9e75;
+  color: #ffffff;
+}
+.srh-pick-pills {
+  padding-left: 8px;
+  margin-left: 4px;
+  border-left: 1px solid var(--background-modifier-border, rgba(255, 255, 255, 0.15));
+}
+.srh-pick-label {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  margin-right: 2px;
+}
+.srh-banner-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.srh-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.srh-banner-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* Green Button: WorkBuddy 转录 */
+.srh-btn-workbuddy {
+  background-color: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #059669;
+}
+.srh-btn-workbuddy:hover {
+  background-color: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+.theme-dark .srh-btn-workbuddy {
+  background-color: rgba(16, 185, 129, 0.18);
+  border-color: rgba(52, 211, 153, 0.45);
+  color: #34d399;
+}
+.theme-dark .srh-btn-workbuddy:hover {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+/* Red Button: 制作短视频 */
+.srh-btn-video {
+  background-color: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #dc2626;
+}
+.srh-btn-video:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+.theme-dark .srh-btn-video {
+  background-color: rgba(239, 68, 68, 0.18);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #f87171;
+}
+.theme-dark .srh-btn-video:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.srh-banner-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  background-color: rgba(124, 58, 237, 0.15);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  color: var(--interactive-accent, #a78bfa);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.srh-banner-ai-btn:hover {
+  background-color: var(--interactive-accent, #7c3aed);
+  color: #fff;
+}
+
+/* --- 5. Reading Companion Side Panel View --- */
+.srh-companion-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px 14px;
+  overflow-y: auto;
+  gap: 16px;
+  background-color: var(--background-primary);
+}
+
+.srh-panel-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+.srh-panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-normal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.srh-panel-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.srh-card {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.srh-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+.srh-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+.srh-meta-val {
+  color: var(--text-normal);
+  font-weight: 500;
+}
+
+/* AI Summary in Sidebar */
+.srh-ai-box {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+.srh-ai-box.empty {
+  color: var(--text-faint);
+  font-style: italic;
+  text-align: center;
+  padding: 16px 8px;
+}
+
+/* Highlights list in Sidebar */
+.srh-highlight-item {
+  position: relative;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  background-color: var(--background-primary);
+  border-left: 3px solid var(--interactive-accent);
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.srh-highlight-item:hover {
+  background-color: var(--background-modifier-hover);
+  transform: translateX(2px);
+}
+.srh-hl-yellow-item { border-left-color: #facc15; }
+.srh-hl-green-item { border-left-color: #4ade80; }
+.srh-hl-blue-item { border-left-color: #60a5fa; }
+.srh-hl-purple-item { border-left-color: #c084fc; }
+.srh-hl-red-item { border-left-color: #f87171; }
+
+.srh-hl-note {
+  margin-top: 5px;
+  padding: 4px 6px;
+  background: rgba(124, 58, 237, 0.1);
+  border-radius: 4px;
+  color: var(--interactive-accent, #a78bfa);
+  font-size: 11px;
+}
+
+.srh-empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 24px 10px;
+}
+
+/* ===== Bases 折叠分组视图 (srh-fold) ===== */
+.srh-fold-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 10px 20px;
+  overflow-y: auto;
+  height: 100%;
+  outline: none;
+}
+
+.srh-fold-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px 8px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  position: sticky;
+  top: 0;
+  background: var(--background-primary);
+  z-index: 2;
+}
+
+.srh-fold-total {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-right: auto;
+}
+
+.srh-fold-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.srh-fold-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.srh-fold-group {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.srh-fold-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  background: var(--background-primary-alt);
+  user-select: none;
+}
+
+.srh-fold-heading:hover {
+  background: var(--background-modifier-hover);
+}
+
+.srh-fold-caret {
+  font-size: 10px;
+  color: var(--text-muted);
+  width: 12px;
+  flex: 0 0 12px;
+}
+
+.srh-fold-key {
+  font-weight: var(--font-semibold);
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+}
+
+.srh-fold-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.srh-fold-body {
+  display: none;
+}
+
+.srh-fold-group.is-open .srh-fold-body {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  padding: 14px;
+  background: var(--background-primary);
+}
+
+@media (max-width: 1200px) {
+  .srh-fold-group.is-open .srh-fold-body {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .srh-fold-group.is-open .srh-fold-body {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .srh-fold-group.is-open .srh-fold-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 450px) {
+  .srh-fold-group.is-open .srh-fold-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 5-Column Grid Card Layout */
+.srh-fold-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.srh-fold-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--interactive-accent);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.srh-fold-card-thumb-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--background-secondary-alt);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.srh-fold-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.srh-fold-card:hover .srh-fold-card-thumb {
+  transform: scale(1.04);
+}
+
+.srh-fold-card-thumb-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%);
+  color: var(--text-muted);
+}
+
+.srh-ph-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.srh-ph-text {
+  font-size: 11px;
+  font-weight: 500;
+  max-width: 85%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-faint);
+}
+
+.srh-fold-card-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+.srh-fold-card-title {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.srh-fold-card-title a {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-normal);
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  transition: color 0.12s ease;
+}
+
+.srh-fold-card-title a:hover {
+  color: var(--interactive-accent);
+}
+
+.srh-fold-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  gap: 4px;
+}
+
+.srh-fold-card-meta-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.srh-fold-src {
+  color: var(--interactive-accent);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.srh-fold-src:hover {
+  text-decoration: underline;
+}
+
+.srh-fold-card-tldr {
+  font-size: 11px;
+  color: var(--text-faint);
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+/* Fallback list row style */
+.srh-fold-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-top: 1px solid var(--background-modifier-border);
+  transition: background-color 0.15s ease;
+}
+
+.srh-fold-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.srh-fold-thumb-wrap {
+  flex: 0 0 116px;
+  width: 116px;
+  height: 74px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--background-secondary-alt);
+  border: 1px solid var(--background-modifier-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.srh-fold-thumb-wrap:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.srh-fold-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.srh-fold-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.srh-fold-title a {
+  font-size: var(--font-ui-small);
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+  text-decoration: none;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.srh-fold-title a:hover {
+  color: var(--interactive-accent);
+  text-decoration: underline;
+}
+
+.srh-fold-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.srh-fold-src {
+  color: var(--interactive-accent);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.srh-fold-src:hover {
+  text-decoration: underline;
+}
+
+.srh-fold-tldr {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin-top: 2px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.srh-fold-empty,
+.srh-fold-error {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 16px 6px;
+}
+
+.srh-fold-error {
+  color: var(--text-error, #e5534b);
+}
+
+.srh-fold-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 6px;
+  font-size: 12px;
+}
